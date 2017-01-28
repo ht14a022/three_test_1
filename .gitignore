@@ -1,0 +1,10 @@
+*.log
+node_modules/
+json/*.json
+config/user.json
+public/bower_components/
+
+public/dist/*
+db/*/*.sqlite3
+!.gitkeep
+npm-debug.log

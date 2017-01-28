@@ -1,0 +1,16 @@
+{
+    "Server": {
+        "port": 3001
+    },
+    "session": {
+        "secret": "hello"
+    },
+    "oauth": {
+        "google": {
+            "clientID": "910469533643-mcq002jm6kso99s1p5r6d5bhgoavh7qt.apps.googleusercontent.com",
+            "clientSecret": "LHDYsBmbrlAEKfuBQh9pD1EJ",
+            "callbackURL": "http://db.hisalab.net/auth/google/callback",
+            "passReqToCallback": true
+        }
+    }
+}

@@ -1,0 +1,22 @@
+{
+  "name": "three_test_1",
+  "description": "",
+  "main": "index.js",
+  "authors": [
+    "Rimpei Kunimoto <kunimotorimpei@gmail.com>"
+  ],
+  "license": "ISC",
+  "homepage": "",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "public/bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "three": "*",
+    "stats.js": "*"
+  }
+}
