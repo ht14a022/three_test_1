@@ -7,7 +7,12 @@ export default class Sample {
         this.height = window.innerHeight;
         this.output = opts.output || document.createElement('div');
 
+        this.move = false;
+
+        this.socket = io();
+
         this.loop = 0;
+        this.keys = {};
         this.init();
     }
 
@@ -22,21 +27,26 @@ export default class Sample {
         }
         { // camera
             this.camera = new THREE.PerspectiveCamera(75, this.width / this.height, 1, 10000);
-            this.camera.position.z = 5;
+            this.camera.position.z = 50;
         }
-        { // cube
-            const geometry = new THREE.BoxGeometry(1, 1, 1);
-            const material = new THREE.MeshBasicMaterial({ color: 0xff0000, wireframe: true });
-            this.mesh = new THREE.Mesh(geometry, material);
-            this.mesh.position.set(5, 0, -2);
-            this.scene.add(this.mesh);
+        { // Light
+            const directionalLight = new THREE.PointLight(0xffffff, 3);
+            directionalLight.position.set(0, 0, 3);
+            this.scene.add(directionalLight);
         }
-        { // cube
-            const geometry = new THREE.BoxGeometry(1, 1, 1);
-            const material = new THREE.MeshBasicMaterial({ color: 0xff0000, wireframe: true });
-            this.mesh2 = new THREE.Mesh(geometry, material);
-            // this.mesh2.position.set(5, 0, -2);
-            this.scene.add(this.mesh2);
+        { // 自分側バー
+            const geometry = new THREE.CubeGeometry(20, 2, 2);
+            const material = new THREE.MeshPhongMaterial({ color: 0xff0000 });
+            this.mybar = new THREE.Mesh(geometry, material);
+            this.mybar.position.set(0, -30, 0);
+            this.scene.add(this.mybar);
+        }
+        { // 相手側バー
+            const geometry = new THREE.CubeGeometry(20, 2, 2);
+            const material = new THREE.MeshPhongMaterial({ color: 0x0000ff });
+            this.enemybar = new THREE.Mesh(geometry, material);
+            this.enemybar.position.set(0, 30, 0);
+            this.scene.add(this.enemybar);
         }
         { // renderer
             this.renderer = new THREE.WebGLRenderer();
@@ -45,30 +55,41 @@ export default class Sample {
             this.renderer.setSize(this.width, this.height);
             this.output.appendChild(this.renderer.domElement);
         }
-        // this.render();
-        window.addEventListener('resize', () => {
-            this.onResize();
-        }, false);
-        // var animate = () => {
-        //     requestAnimationFrame(animate);
-        //     this.mesh.rotation.x += 0.05;
-        //     this.mesh.rotation.y += 0.07;
-        //     this.renderer.render(this.scene, this.camera);
-        // };
-        // animate();
-
+        { // Event
+            window.addEventListener('resize', () => this.onResize(), false);
+            window.addEventListener('keydown', (event) => this.keys[event.keyCode] = true, false);
+            window.addEventListener('keyup', (event) => this.keys[event.keyCode] = false, false);
+        }
+        { // Socket Event
+            this.socket.on('bar pos', (msg) => {
+                this.enemybar.position.set(-msg.x, 30, 0);
+            });
+        }
     }
 
     render() {
         this.stats.begin();
         // this.controls.update();
-        this.mesh2.rotation.x += 0.05;
-        this.mesh2.rotation.y += 0.07;
-        this.mesh.rotation.x += 0.05;
-        this.mesh.rotation.y += 0.07;
-        this.mesh.position.x = Math.sin(this.loop * 0.05) * 3;
-        this.mesh.position.y = Math.cos(this.loop * 0.05) * 3;
-        this.mesh.position.z = Math.tan(this.loop * 0.05) * 3;
+        // this.mesh.position.x = Math.sin(this.loop * 0.05) * 3;
+        // this.mesh.position.y = Math.cos(this.loop * 0.05) * 3;
+        // this.mesh.position.z = Math.tan(this.loop * 0.05) * 3;
+
+        if (this.keys[68]) {
+            this.mybar.position.x += 0.5;
+            this.move = true;
+        }
+        if (this.keys[65]) {
+            this.mybar.position.x -= 0.5;
+            this.move = true;
+        }
+        // if (this.keys[87]) this.mybar.position.y += 0.05;//W
+        // if (this.keys[83]) this.mybar.position.y -= 0.05;//S
+        if (this.move) {
+            this.socket.emit('bar pos', {
+                x: this.mybar.position.x
+            });
+            this.move = false;
+        }
         this.renderer.render(this.scene, this.camera);
 
         this.loop++;
